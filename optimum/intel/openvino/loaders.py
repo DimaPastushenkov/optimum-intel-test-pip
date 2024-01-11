@@ -16,12 +16,7 @@ import logging
 from typing import Dict, List, Optional, Union
 
 import torch
-from diffusers.utils import (
-    DIFFUSERS_CACHE,
-    HF_HUB_OFFLINE,
-    _get_model_file,
-)
-
+from diffusers.utils import _get_model_file
 
 from ..utils.import_utils import is_safetensors_available
 
@@ -30,6 +25,7 @@ if is_safetensors_available():
     import safetensors
 
 import openvino
+from huggingface_hub.constants import HF_HUB_OFFLINE
 from openvino.runtime import Type
 from openvino.runtime import opset11 as ops
 from openvino.runtime.passes import Manager, Matcher, MatcherPass, WrapType
@@ -38,12 +34,18 @@ from transformers import PreTrainedTokenizer
 from .utils import TEXTUAL_INVERSION_EMBEDDING_KEY, TEXTUAL_INVERSION_NAME, TEXTUAL_INVERSION_NAME_SAFE
 
 
+try:
+    from diffusers.utils import DIFFUSERS_CACHE
+except ImportError:
+    DIFFUSERS_CACHE = None
+
+
 logger = logging.getLogger(__name__)
 
 
 class InsertTextEmbedding(MatcherPass):
     r"""
-    OpenVINO ngraph transformation for inserting pre-trained texual inversion embedding to text encoder
+    OpenVINO ngraph transformation for ttt inserting pre-trained texual inversion embedding to text encoder
     """
 
     def __init__(self, token_ids_and_embeddings):
